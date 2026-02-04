@@ -166,7 +166,11 @@
           score: score,
           persona: persona.title,
           ...Object.entries(formData.answers).reduce((acc, [key, val], idx) => {
-            acc[`q${idx + 1}_${questions[idx].dimension.toLowerCase().replace(/ /g, '_')}`] = val;
+            const dimensionKey = questions[idx].dimension
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '_')
+              .replace(/^_|_$/g, '');
+            acc[`q${idx + 1}_${dimensionKey}`] = val;
             return acc;
           }, {})
         };
@@ -503,7 +507,7 @@
 
       if (screen === 'result' && result) {
         return (
-          <div className="min-h-screen bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 p-4 relative overflow-hidden">
+          <div className="min-h-screen bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 p-4 pt-8 relative overflow-hidden">
             {showConfetti && (
               <div className="fixed inset-0 pointer-events-none">
                 {[...Array(50)].map((_, i) => (
@@ -523,7 +527,7 @@
               </div>
             )}
 
-            <div className="max-w-md mx-auto relative z-10">
+            <div className="max-w-md mx-auto relative z-10 pt-4">
               <div className="text-center mb-4">
                 <img 
                   src="https://i.ibb.co/7JTpZ8NR/gallego.png" 
@@ -532,8 +536,8 @@
                 />
               </div>
               
-              <div className="text-center mb-6">
-                <div className="text-8xl mb-4 animate-bounce">{result.persona.emoji}</div>
+              <div className="text-center mb-6 mt-8">
+                <div className="text-7xl mb-4 animate-bounce">{result.persona.emoji}</div>
                 <div className={`inline-block bg-gradient-to-r ${result.persona.color} text-white px-6 py-2 rounded-full font-black text-sm mb-4 shadow-lg`}>
                   {result.persona.badge}
                 </div>
