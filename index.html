@@ -22,6 +22,7 @@
         fullName: '',
         gradeLevel: '',
         school: '',
+        address: '',
         mobile: '',
         email: '',
         dreamCareer: '',
@@ -158,6 +159,7 @@
           fullName: formData.fullName,
           gradeLevel: formData.gradeLevel,
           school: formData.school,
+          address: formData.address,
           mobile: formData.mobile,
           email: formData.email,
           dreamCareer: formData.dreamCareer,
@@ -293,6 +295,14 @@
                   />
 
                   <input
+                    type="text"
+                    placeholder="Address (Barangay, City)"
+                    value={formData.address}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none text-lg"
+                  />
+
+                  <input
                     type="tel"
                     placeholder="Mobile Number"
                     value={formData.mobile}
@@ -332,7 +342,7 @@
                 <button
                   onClick={() => {
                     if (formData.fullName && formData.gradeLevel && formData.school && 
-                        formData.mobile && formData.email && formData.dreamCareer && formData.consent) {
+                        formData.address && formData.mobile && formData.email && formData.dreamCareer && formData.consent) {
                       setScreen('questions');
                     } else {
                       alert('Please fill in all fields and agree to the consent.');
@@ -416,7 +426,7 @@
                     }
                   }}
                   disabled={!answered || currentQuestion === questions.length - 1}
-                  className="bg-white text-purple-600 px-6 py-2 rounded-full font-bold disabled:opacity-30"
+                  className="bg-white text-green-600 px-6 py-2 rounded-full font-bold disabled:opacity-30"
                 >
                   Next →
                 </button>
