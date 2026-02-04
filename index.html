@@ -133,28 +133,31 @@
       };
 
       const handleAnswer = (questionId, value) => {
+        const updatedAnswers = { ...formData.answers, [questionId]: value };
+        
         setFormData(prev => ({
           ...prev,
-          answers: { ...prev.answers, [questionId]: value }
+          answers: updatedAnswers
         }));
         
         setTimeout(() => {
           if (currentQuestion < questions.length - 1) {
             setCurrentQuestion(currentQuestion + 1);
           } else {
-            submitAssessment();
+            submitAssessment(updatedAnswers);
           }
         }, 300);
       };
 
-      const submitAssessment = async () => {
-        const score = calculateScore();
+      const submitAssessment = async (answersToSubmit) => {
+        const finalAnswers = answersToSubmit || formData.answers;
+        
+        const score = Object.values(finalAnswers).reduce((sum, val) => sum + val, 0);
         const persona = getPersona(score);
         
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
 
-        // FIXED: Explicit field mapping to ensure all questions are captured
         const submissionData = {
           timestamp: new Date().toISOString(),
           fullName: formData.fullName,
@@ -166,11 +169,11 @@
           dreamCareer: formData.dreamCareer,
           score: score,
           persona: persona.title,
-          q1_integrity: formData.answers.q1 || 0,
-          q2_initiative: formData.answers.q2 || 0,
-          q3_influence: formData.answers.q3 || 0,
-          q4_grit_responsibility: formData.answers.q4 || 0,
-          q5_vision: formData.answers.q5 || 0
+          q1_integrity: finalAnswers.q1 || 0,
+          q2_initiative: finalAnswers.q2 || 0,
+          q3_influence: finalAnswers.q3 || 0,
+          q4_grit_responsibility: finalAnswers.q4 || 0,
+          q5_vision: finalAnswers.q5 || 0
         };
 
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyOP_jdTonpgypmtu1CQD46ABJXIyICzahGF6SFYNB3jvlcDyx86IjAqpJL_Mur_m5/exec';
@@ -182,7 +185,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(submissionData)
           });
-          console.log('Data submitted:', submissionData);
+          console.log('Submitted data:', submissionData);
         } catch (error) {
           console.error('Submission error:', error);
         }
