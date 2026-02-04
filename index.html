@@ -33,6 +33,7 @@
       const [showConfetti, setShowConfetti] = useState(false);
       const [scoreAnimation, setScoreAnimation] = useState(0);
       const [touchStart, setTouchStart] = useState(0);
+      const [isSubmitting, setIsSubmitting] = useState(false);
 
       const questions = [
         {
@@ -133,6 +134,9 @@
       };
 
       const handleAnswer = (questionId, value) => {
+        // Prevent answering if already submitting
+        if (isSubmitting) return;
+        
         const updatedAnswers = { ...formData.answers, [questionId]: value };
         
         setFormData(prev => ({
@@ -150,6 +154,14 @@
       };
 
       const submitAssessment = async (answersToSubmit) => {
+        // Prevent double submission
+        if (isSubmitting) {
+          console.log('Submission already in progress, ignoring duplicate request');
+          return;
+        }
+        
+        setIsSubmitting(true);
+        
         const finalAnswers = answersToSubmit || formData.answers;
         
         const score = Object.values(finalAnswers).reduce((sum, val) => sum + val, 0);
@@ -176,7 +188,7 @@
           q5_vision: finalAnswers.q5 || 0
         };
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyOP_jdTonpgypmtu1CQD46ABJXIyICzahGF6SFYNB3jvlcDyx86IjAqpJL_Mur_m5/exec';
+        const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
 
         try {
           await fetch(SCRIPT_URL, {
@@ -331,7 +343,7 @@
 
                   <input
                     type="text"
-                    placeholder="Address (Barangay, City)"
+                    placeholder="Address"
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none text-lg"
@@ -378,7 +390,7 @@
 
                   <input
                     type="text"
-                    placeholder="Dream Career (e.g., Engineer, Doctor)"
+                    placeholder="Dream Career (e.g., Nurse, Policeman)"
                     value={formData.dreamCareer}
                     onChange={(e) => setFormData({...formData, dreamCareer: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none text-lg"
@@ -468,6 +480,9 @@
               <div className="text-white text-center mb-4">
                 <p className="text-sm font-medium">Question {currentQuestion + 1} of {questions.length}</p>
                 <p className="text-xs opacity-75">Swipe to navigate →</p>
+                {isSubmitting && (
+                  <p className="text-sm font-bold mt-2 animate-pulse">✨ Submitting your results...</p>
+                )}
               </div>
 
               <div className="bg-white rounded-3xl shadow-2xl p-8 mb-4">
@@ -486,11 +501,12 @@
                     <button
                       key={idx}
                       onClick={() => handleAnswer(question.id, choice.value)}
+                      disabled={isSubmitting}
                       className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center space-x-3 ${
                         answered === choice.value
                           ? 'border-green-500 bg-green-50 shadow-lg scale-105'
                           : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                      }`}
+                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <span className="text-3xl">{choice.emoji}</span>
                       <span className="text-gray-700 font-medium flex-1">{choice.text}</span>
@@ -602,7 +618,7 @@
                     {result.persona.programHighlight}
                   </div>
                   <button 
-                    onClick={() => window.open('https://www.facebook.com/MVGFCI', '_blank')}
+                    onClick={() => window.open('https://mvgfc.edu.ph', '_blank')}
                     className="w-full bg-white text-green-600 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
                   >
                     Learn More About MVGFC 🎓
