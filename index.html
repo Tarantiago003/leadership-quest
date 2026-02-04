@@ -160,7 +160,7 @@
           gradeLevel: formData.gradeLevel,
           school: formData.school,
           address: formData.address,
-          mobile: formData.mobile,
+          mobile: '+63' + formData.mobile.slice(1),
           email: formData.email,
           dreamCareer: formData.dreamCareer,
           score: score,
@@ -304,19 +304,42 @@
 
                   <input
                     type="tel"
-                    placeholder="Mobile Number"
+                    placeholder="Mobile Number (09XXXXXXXXX)"
                     value={formData.mobile}
-                    onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/\D/g, '');
+                      if (value.startsWith('63')) {
+                        value = '0' + value.slice(2);
+                      }
+                      if (value.length <= 11) {
+                        setFormData({...formData, mobile: value});
+                      }
+                    }}
+                    maxLength="11"
+                    pattern="09[0-9]{9}"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none text-lg"
                   />
+                  {formData.mobile && formData.mobile.length > 0 && formData.mobile.length !== 11 && (
+                    <p className="text-red-500 text-sm mt-1">Mobile number must be 11 digits</p>
+                  )}
+                  {formData.mobile && formData.mobile.length === 11 && !formData.mobile.startsWith('09') && (
+                    <p className="text-red-500 text-sm mt-1">Mobile number must start with 09</p>
+                  )}
 
                   <input
                     type="email"
                     placeholder="Email Address"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => {
+                      const value = e.target.value.toLowerCase().trim();
+                      setFormData({...formData, email: value});
+                    }}
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:outline-none text-lg"
                   />
+                  {formData.email && !(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(formData.email)) && (
+                    <p className="text-red-500 text-sm mt-1">Please enter a valid email address</p>
+                  )}
 
                   <input
                     type="text"
@@ -341,12 +364,31 @@
 
                 <button
                   onClick={() => {
-                    if (formData.fullName && formData.gradeLevel && formData.school && 
-                        formData.address && formData.mobile && formData.email && formData.dreamCareer && formData.consent) {
-                      setScreen('questions');
-                    } else {
+                    // Check if all fields are filled
+                    if (!formData.fullName || !formData.gradeLevel || !formData.school || 
+                        !formData.address || !formData.mobile || !formData.email || !formData.dreamCareer || !formData.consent) {
                       alert('Please fill in all fields and agree to the consent.');
+                      return;
                     }
+                    
+                    // Validate mobile number
+                    if (formData.mobile.length !== 11) {
+                      alert('Mobile number must be exactly 11 digits.');
+                      return;
+                    }
+                    if (!formData.mobile.startsWith('09')) {
+                      alert('Mobile number must start with 09.');
+                      return;
+                    }
+                    
+                    // Validate email format
+                    const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+                    if (!emailRegex.test(formData.email)) {
+                      alert('Please enter a valid email address (e.g., yourname@example.com).');
+                      return;
+                    }
+                    
+                    setScreen('questions');
                   }}
                   className="w-full mt-6 bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl text-lg font-bold shadow-lg hover:shadow-xl transition-all"
                 >
